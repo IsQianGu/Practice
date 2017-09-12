@@ -19,18 +19,20 @@
         },
         Async: function (Rely) {
             //此参数即为上面的传入的依赖对象
+            let m="";
             for (let i = 0; i < Rely.Arr.length; i++) {
                 for (let s = 0; s < Rely.Arr.length; s++) {
-                    //this.message用于向主线程返回数据
-                    this.message("[ " + String(i) + " - (" + String(Rely.Arr[i] + i + s * i) + " & " + String(Rely.Arr[s] / 2 + s + i - s / 3) + " )" + " ]");
+                    console.log("[ " + String(i) + " - (" + String(Rely.Arr[i] + i + s * i) + " & " + String(Rely.Arr[s] / 2 + s + i - s / 3) + " )" + " ]");
                 }
             }
+//              this.message用于向主线程返回数据
+//            this.message(m);
             //this.Stop()用于结束当前异步线程
             this.Stop();
         },
         Callback: function (data) {
             //此处接受this.message向主线程返回的数据-data
-            console.log(data);
+//            console.log(data);
         }
     });
 
