@@ -1,0 +1,315 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>music</title>
+    <style>
+        .box {
+            width: 600px;
+            height: 40px;
+            margin: auto;
+            text-align: center;
+            line-height: 30px;
+        }
+
+        ul, li, div {
+            margin: 0 auto;
+            padding: 0;
+            list-style: none;
+            font-family: '楷体';
+        }
+
+        li {
+            width: 200px;
+            height: 20px;
+            margin-top: 10px;
+            text-align: center;
+            line-height: 20px;
+            cursor: pointer;
+            border: 1px solid #3E6377;
+            background: #ffffff;
+            color: #3E6377;
+        }
+
+        li:hover {
+            border: 1px solid #ffffff;
+            background: #3E6377;
+            color: #ffffff;
+        }
+
+        h2 {
+            text-align: center;
+            color: darkslategray;
+            font-family: '楷体';
+        }
+
+        .bar {
+            width: 600px;
+            height: 10px;
+            border: 1px solid #000000;
+            position: relative;
+        }
+
+        .lineBar {
+            width: 0;
+            height: 10px;
+            background: #000000;
+            position: absolute;
+            left: 0;
+            top: 0;
+        }
+
+        button {
+            height: 30px;
+            border: 1px solid #3E6377;
+            background: #ffffff;
+            color: #3E6377;
+        }
+
+        button:hover {
+            border: 1px solid #ffffff;
+            background: #3E6377;
+            color: #ffffff;
+        }
+
+        #timeBar>span{
+            position: absolute;
+            top: -20px;
+        }
+    </style>
+</head>
+<body>
+<h2>
+    控制按钮
+</h2>
+<div class="box">
+    <button id="next">下一首</button>
+    <button id="prev">上一首</button>
+    <button id="play">播放</button>
+    <button id="pause">暂停</button>
+    <button id="loop">单曲循环</button>
+    <button id="loopAll">循环</button>
+    <button id="order">顺序</button>
+    <button id="random">随机</button>
+    <button id="muted">静音</button>
+    <button id="nomuted">解除静音</button>
+</div>
+<h2 id="fangshi">
+
+</h2>
+<div style="text-align: center;margin-top: 20px">
+    <h2 id="audioName">
+
+    </h2>
+    <h2>
+        进度条
+    </h2>
+
+    <div class="bar" id="timeBar">
+        <div class="lineBar">
+
+        </div>
+        <span style="left: 0px"></span>
+        <span style="right: 0px"></span>
+        <span style="left: 50%"></span>
+    </div>
+    <h2>
+        音量
+    </h2>
+    <div class="bar" id="volBar">
+        <div class="lineBar" style="width: 300px">
+
+        </div>
+    </div>
+    <button style="margin-top: 20px" id="log">控制台输出callback中的data</button>
+    <button style="margin-top: 20px" id="conlog">控制台输出controller中的data</button>
+</div>
+<h2>
+    播放列表
+</h2>
+<ul>
+    <li>第一关one</li>
+    <li>第一关two</li>
+    <li>第三关</li>
+    <li>房间</li>
+</ul>
+<h2>
+    <button id="show">显示原生控件</button>
+    <button style="margin-top: 20px" id="hide">隐藏原生控件</button>
+</h2>
+<h2 id="playIs">
+
+</h2>
+<script src="Is_Player.js"></script>
+<script>
+    isAudio({
+        //这个可以写可以不写，不写的话页面中不会出现audio标签（整个页面根本没有，非隐藏）
+        dark:document.getElementById("playIs"),
+        //文件地址列表
+        src: ["music/bgm_1Low.mp3","music/bgm_1High.wav", "music/bgm_3Low.wav", "music/bgm_room.wav"],
+        //name列表,信息列表，可以改为以对象形式传入每个歌曲的多个信息，歌词地址，封面地址等
+        info: ["第一关one","第一关two", "第三关", "房间"],
+        //准备就绪后是否自动播放
+        autoPlay: true,
+//          此回掉函数自动不间断每100毫秒自动执行，data中包含歌曲进度信息（有两个，一个为百分比数值
+//          ，另一个为具体时间数据），音量信息，当前歌曲名称and路径，在列表中位置，总时长
+//          ，播放/暂停状态，循环类型
+//              这个callback中的函数体会被计时器重复执行，间隔为100毫秒
+        callback: function (data) {
+            document.getElementById("log").onclick = function () {
+                console.log(data);
+            };
+            document.getElementById("timeBar").getElementsByTagName("span")[0].innerText=data.currentTime;
+            document.getElementById("timeBar").getElementsByTagName("span")[1].innerText=data.time;
+            if(document.getElementById("timeBar").getAttribute("idown") === "false" || document.getElementById("timeBar").getAttribute("idown") === null){
+                document.getElementsByClassName("lineBar")[0].style.width=(600 / data.time)*data.currentTime+"px";
+            }
+            document.getElementById("audioName").innerText=data.name;
+            document.getElementById("fangshi").innerText="循环方式:"+data.loop;
+        },
+
+        controller: function (data) {
+//            data包含和上面callback中data一样的信息，用到了堆栈中堆的原理他只是个指针所以是跟随内部对象的属性的值变化而变化
+            document.getElementById("conlog").onclick = function () {
+                console.log(data);
+            };
+            console.log(123);
+//            可以验证，过一会按一下按钮，打印出的信息是动态变化的，但是这个controller中的函数体不会被计时器重复执行
+
+//            this.next();          下一首
+//            this.prev();          上一首
+//            this.eq(index);       index代表第几首，从0开始
+//            this.play();          播放
+//            this.pause();         暂停
+//            this.loop();          循环当前
+//            this.loopAll();       循环列表所有
+//            this.random();        随机播放
+//            this.order();         按列表顺序--只播放一次
+//            this.time(val);       接受一个时间，用来调节进度条时间  大于等于0，小于歌曲总时长
+//            this.volume(val);     声音大小，接受0-100的参数
+//            this.muted();         静音
+//            this.nomuted();       取消静音
+//       this.show(); this.hide();  原生控件的显示隐藏，前提是在dark中传入了承载控件的dom节点
+
+
+            let _this = this;
+            console.log(_this);
+
+            document.getElementById("play").onclick = function () {
+                _this.play();
+            };
+            document.getElementById("next").onclick = function () {
+                _this.next();
+            };
+            document.getElementById("prev").onclick = function () {
+                _this.prev();
+            };
+            document.getElementById("pause").onclick = function () {
+                _this.pause();
+            };
+
+
+            document.getElementById("show").onclick = function () {
+                _this.show();
+            };
+            document.getElementById("hide").onclick = function () {
+                _this.hide();
+            };
+
+
+
+            document.getElementsByTagName("ul")[0].getElementsByTagName("li")[0].onclick = function () {
+                _this.eq(0);
+            };
+            document.getElementsByTagName("ul")[0].getElementsByTagName("li")[1].onclick = function () {
+                _this.eq(1);
+            };
+            document.getElementsByTagName("ul")[0].getElementsByTagName("li")[2].onclick = function () {
+                _this.eq(2);
+            };
+            document.getElementsByTagName("ul")[0].getElementsByTagName("li")[3].onclick = function () {
+                _this.eq(3);
+            };
+
+            document.getElementById("loop").onclick = function () {
+                _this.loop();
+            };
+            document.getElementById("loopAll").onclick = function () {
+                _this.loopAll();
+            };
+            document.getElementById("random").onclick = function () {
+                _this.random();
+            };
+            document.getElementById("order").onclick = function () {
+                _this.order();
+            };
+
+            document.getElementById("muted").onclick = function () {
+                _this.muted();
+            };
+            document.getElementById("nomuted").onclick = function () {
+                _this.nomuted();
+            };
+
+
+            document.getElementById("volBar").onmousedown = function (ev) {
+                let event = ev || event;
+                volBar(event, this);
+                this.setAttribute("idown", true);
+            };
+            document.getElementById("volBar").onmousemove = function (ev) {
+                if (this.getAttribute("idown") !== "false" && this.getAttribute("idown") !== null) {
+                    let event = ev || event;
+                    volBar(event, this);
+                }
+
+            };
+            document.getElementById("volBar").onmouseup = function (ev) {
+                let event = ev || event;
+                volBar(event, this);
+                this.setAttribute("idown", false);
+
+            };
+
+            function volBar(e, t) {
+                let x = e.clientX - t.offsetLeft;
+                t.getElementsByClassName("lineBar")[0].style.width = x + "px";
+                _this.volume(Math.floor(x / (600 / 100)));
+            }
+
+            document.getElementById("timeBar").onmousedown = function (ev) {
+                let event = ev || event;
+                timeBar(event, this);
+                this.setAttribute("idown", true);
+            };
+            document.getElementById("timeBar").onmousemove = function (ev) {
+                if (this.getAttribute("idown") !== "false" && this.getAttribute("idown") !== null) {
+                    let event = ev || event;
+                    timeBar(event, this);
+                }
+            };
+            document.getElementById("timeBar").onmouseup = function (ev) {
+                let event = ev || event;
+                timeBar(event, this, true);
+                this.setAttribute("idown", false);
+            };
+
+            function timeBar(e, t, s) {
+                let x = e.clientX - t.offsetLeft;
+                t.getElementsByClassName("lineBar")[0].style.width = x + "px";
+                document.getElementById("timeBar").getElementsByTagName("span")[2].innerText=x / (600 / data.time);
+                if (s === true) {
+                    _this.time(x / (600 / data.time))
+                    document.getElementById("timeBar").getElementsByTagName("span")[2].innerText="";
+                }
+            }
+
+        }
+    });
+
+    function timeTotime(t) {
+
+    }
+</script>
+</body>
+</html>
